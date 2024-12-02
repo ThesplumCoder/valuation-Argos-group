@@ -1,0 +1,194 @@
+---
+title: "Valoración Grupo Argos"
+author: "Anderson Acuña"
+date: "`r Sys.Date()`"
+output: 
+  html_document: 
+    toc: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Información financiera histórica
+
+```{r}
+historical_data <- data.frame(sales = c(22593101.00, 21339706.00, 16309119.00, 13990523.00, 16798588.00),
+                              ebitda = c(5503225.00, 5220177.00, 4336105.00, 3354815.00, 4787528.00), 
+                              ktno = c(-484634.00, 1942741.00, -2458849.00, -2659194.00, -2107887.00), 
+                              years = c(2023, 2022, 2021, 2020, 2019))
+
+projected_years <- data.frame(years = c(2024, 2025, 2026, 2027, 2028))
+```
+
+
+# Estimación de crecimiento de ventas
+
+```{r}
+regresion <- lm(sales ~ years, data = historical_data)
+
+sales_col <- "royalblue"
+reg_sales_col <- "coral"
+plot(x = historical_data$years, y = historical_data$sales, 
+     type = "l", 
+     col = sales_col, 
+     main = "Regresión de Ventas", 
+     xlab = "Año", 
+     ylab = "Millones de COP")
+abline(regresion, 
+       col = reg_sales_col, 
+       lty = 2)
+legend("topleft", 
+       legend = c("Ventas históricas", "Regresión"), 
+       col = c(sales_col, reg_sales_col), 
+       lty = c(1, 2), 
+       inset = 0.02)
+```
+
+Proyección de los años siguientes:
+```{r}
+projected_sales <- predict(regresion, projected_years)
+
+plot(x = projected_years$years, y = projected_sales, 
+     type = "b", 
+     col = sales_col, 
+     main = "Proyección de Ventas", 
+     xlab = "Año", 
+     ylab = "Millones de COP")
+```
+
+# Estimación de EBITDA
+
+Regresión con datos históricos:
+```{r}
+ebitda_regresion <- lm(ebitda ~ years, data = historical_data)
+
+ebitda_col <- "royalblue"
+reg_ebitda_col <- "coral"
+plot(x = historical_data$years, y = historical_data$ebitda, 
+     type = "l", 
+     col = ebitda_col, 
+     main = "Regresión de EBITDA", 
+     xlab = "Año", 
+     ylab = "Millones de COP")
+abline(ebitda_regresion, 
+       col = reg_ebitda_col, 
+       lty = 2)
+legend("topleft", 
+       legend = c("EBITDA histórico", "Regresión"), 
+       col = c(ebitda_col, reg_ebitda_col), 
+       lty = c(1, 2), 
+       inset = 0.02)
+```
+
+Proyección:
+```{r}
+projected_ebitda <- predict(ebitda_regresion, projected_years)
+
+plot(x = projected_years$years, y = projected_ebitda, 
+     type = "b", 
+     col = ebitda_col, 
+     main = "Proyección de EBITDA", 
+     xlab = "Año", 
+     ylab = "Millones de COP")
+```
+
+# Estimación de KTNO
+
+Datos históricos:
+```{r}
+ktno_regresion <- lm(ktno ~ years, data = historical_data)
+
+ktno_col <- "royalblue"
+reg_ktno_col <- "coral"
+plot(x = historical_data$years, y = historical_data$ktno, 
+     type = "l", 
+     col = ktno_col, 
+     main = "Regresión de KTNO", 
+     xlab = "Año", 
+     ylab = "Millones de COP")
+abline(ktno_regresion, 
+       col = reg_ktno_col, 
+       lty = 2)
+legend("topleft", 
+       legend = c("KTNO histórico", "Regresión"), 
+       col = c(ktno_col, reg_ktno_col), 
+       lty = c(1, 2), 
+       inset = 0.02)
+```
+
+Proyección:
+```{r}
+projected_ktno <- predict(ktno_regresion, projected_years)
+
+plot(x = projected_years$years, y = projected_ktno, 
+     type = "b", 
+     col = ktno_col, 
+     main = "Proyección de KTNO", 
+     xlab = "Año", 
+     ylab = "Millones de COP")
+```
+
+# Indicadores calculados proyectados
+
+```{r} 
+indicators_projected <- data.frame(ebitda_margin = c(0.2436, 0.2357, 0.2311, 0.2272, 0.2238, 0.2208), 
+                                   pkt = c(-0.1074, 0.0706, 0.0304, 0.0284, 0.0265, 0.0249), 
+                                   paf = c(-0.0418, -0.0418, -0.0418, -0.0418, -0.0418, -0.0418), 
+                                   wacc = c(0.172803732, 0.162246644, 0.153876811, 0.15162461, 0.152760094, 0.151848232), 
+                                   years = c(2023, projected_years$years))
+ebitda_mar_col <- "dodgerblue"
+pkt_col <- "purple1"
+paf_col <- "orange"
+wacc_col <- "tomato"
+
+plot(x = indicators_projected$years, y = indicators_projected$ebitda_margin, 
+     type = "b", 
+     col = ebitda_mar_col, 
+     main = "Margen EBITDA Proyectado", 
+     xlab = "Año", 
+     ylab = "Porcentaje")
+plot(x = indicators_projected$years, y = indicators_projected$pkt, 
+     type = "b", 
+     col = pkt_col, 
+     main = "PKT Proyectado", 
+     xlab = "Año", 
+     ylab = "Porcentaje")
+plot(x = indicators_projected$years, y = indicators_projected$paf, 
+     type = "b", 
+     col = paf_col, 
+     main = "PAF Proyectado", 
+     xlab = "Año", 
+     ylab = "Porcentaje")
+plot(x = indicators_projected$years, y = indicators_projected$wacc, 
+     type = "b", 
+     col = wacc_col, 
+     main = "WACC Proyectado", 
+     xlab = "Año", 
+     ylab = "Porcentaje")
+```
+
+# Valoración de la empresa
+
+```{r}
+cash_flow <- data.frame(free_cash_flow = c(8193160.39, 4203306.12, 5500207.41, 5906367.12, 6306403.83, 6636634.19), 
+                        vp_cash_flow = c(8193160.39, 3616535.39, 4131047.37, 3867119.80, 3571297.60, 3273192.75), 
+                        years = c(2023, projected_years$years))
+
+plot(x = cash_flow$years, y = cash_flow$free_cash_flow, 
+     ylim = c(3000000, 9000000), 
+     type = "l", 
+     col = "dodgerblue", 
+     main = "Flujos de Caja", 
+     xlab = "Año", 
+     ylab = "Millones en COP")
+lines(x = cash_flow$years, y = cash_flow$vp_cash_flow, 
+      col = "tomato")
+legend("topright", 
+       legend = c("Flujo de Caja Libre", "Valor presente"), 
+       col = c("dodgerblue", "tomato"), 
+       lty = c(1), 
+       inset = 0.02)
+```
+
